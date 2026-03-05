@@ -25,7 +25,8 @@ COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /app
-COPY app /app
+COPY pom.xml /app/
+COPY src /app/src
 COPY maven-settings.xml /usr/share/maven/conf/settings.xml
 
 # Compile
