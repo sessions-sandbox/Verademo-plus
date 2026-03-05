@@ -1,0 +1,25 @@
+fuzzySearch:
+  # Algorithm configuration for fuzzy search
+  algorithm: levenshtein
+  
+  # Maximum distance threshold for fuzzy matching
+  # Lower values = stricter matching, Higher values = more lenient matching
+  maxDistance: 3
+  
+  # Minimum match score (0.0 to 1.0)
+  # Higher values = stricter matching (0.7 = 70% similarity required)
+  minSimilarity: 0.6
+  
+  # Case sensitive matching
+  caseSensitive: false
+  
+  # Enable partial word matching
+  partialMatch: true
+  
+  # Maximum number of results to return
+  maxResults: 20
+  
+  # Algorithms available: levenshtein, damerau-levenshtein, jaro-winkler
+  # - levenshtein: Simple edit distance (insertions, deletions, substitutions)
+  # - damerau-levenshtein: Includes transpositions
+  # - jaro-winkler: Better for short strings with similar prefixes
