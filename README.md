@@ -1,4 +1,4 @@
-# VeraDemo - Blab-a-Gag
+# VeraDemo (restructured) - Blab-a-Gag
 
 ### :information_source: Notice
 
