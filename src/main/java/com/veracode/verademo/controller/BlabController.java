@@ -18,6 +18,7 @@ import com.veracode.verademo.model.Blabber;
 import com.veracode.verademo.model.Comment;
 import com.veracode.verademo.utils.Constants;
 import com.veracode.verademo.utils.Utils;
+import com.veracode.verademo.service.FuzzySearchService;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -568,6 +569,147 @@ public class BlabController {
 			}
 		}
 		return nextView;
+	}
+
+	/**
+	 * Show the search page
+	 */
+	@RequestMapping(value = "/search", method = RequestMethod.GET)
+	public String showSearch(HttpServletRequest httpRequest) {
+		logger.info("Entering showSearch");
+
+		String username = (String) httpRequest.getSession().getAttribute("username");
+		// Ensure user is logged in
+		if (username == null) {
+			logger.info("User is not Logged In - redirecting...");
+			return Utils.redirect("login?target=search");
+		}
+
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
+		return "search";
+	}
+
+	/**
+	 * Fuzzy search endpoint for blabs
+	 * Uses configurable fuzzy search algorithm from YAML config
+	 */
+	@RequestMapping(value = "/search-blabs", method = RequestMethod.GET, produces = "application/json")
+	@ResponseBody
+	public String searchBlabs(
+			@RequestParam(value = "query", required = true) String query,
+			Model model,
+			HttpServletRequest httpRequest) {
+		logger.info("Entering searchBlabs with query: " + query);
+
+		String username = (String) httpRequest.getSession().getAttribute("username");
+		// Ensure user is logged in
+		if (username == null) {
+			logger.info("User is not Logged In - returning error");
+			return "{\"error\": \"User not logged in\"}";
+		}
+
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
+
+		Connection connect = null;
+		PreparedStatement allBlabs = null;
+		StringBuilder jsonResponse = new StringBuilder();
+		jsonResponse.append("{\"results\": [");
+
+		try {
+			logger.info("Getting Database connection");
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
+
+			// Query to get all blabs that the user has access to
+			String sqlAllBlabs = "SELECT blabs.blabid, blabs.content, blabs.timestamp, " +
+					"users.username, users.blab_name, COUNT(comments.blabber) as comment_count " +
+					"FROM blabs " +
+					"INNER JOIN users ON blabs.blabber = users.username " +
+					"LEFT JOIN comments ON blabs.blabid = comments.blabid " +
+					"LEFT JOIN listeners ON blabs.blabber = listeners.blabber " +
+					"WHERE (listeners.listener = ? AND listeners.status='Active') OR blabs.blabber = ? " +
+					"GROUP BY blabs.blabid " +
+					"ORDER BY blabs.timestamp DESC;";
+
+			logger.info("Preparing the search query");
+			allBlabs = connect.prepareStatement(sqlAllBlabs);
+			allBlabs.setString(1, username);
+			allBlabs.setString(2, username);
+			ResultSet results = allBlabs.executeQuery();
+
+			// Initialize fuzzy search service
+			FuzzySearchService fuzzySearch = new FuzzySearchService();
+			int resultCount = 0;
+			boolean firstResult = true;
+
+			while (results.next()) {
+				String content = results.getString(2);
+				
+				// Apply fuzzy search matching
+				if (fuzzySearch.matches(query, content)) {
+					if (!firstResult) {
+						jsonResponse.append(",");
+					}
+					firstResult = false;
+
+					// Calculate similarity score
+					double similarity = fuzzySearch.getSimilarity(query, content);
+
+					// Build JSON for this result
+					jsonResponse.append("{");
+					jsonResponse.append("\"blabid\": ").append(results.getInt(1)).append(",");
+					jsonResponse.append("\"content\": \"").append(escapeJson(content)).append("\",");
+					jsonResponse.append("\"timestamp\": \"").append(results.getTimestamp(3).toString()).append("\",");
+					jsonResponse.append("\"username\": \"").append(escapeJson(results.getString(4))).append("\",");
+					jsonResponse.append("\"blabName\": \"").append(escapeJson(results.getString(5))).append("\",");
+					jsonResponse.append("\"commentCount\": ").append(results.getInt(6)).append(",");
+					jsonResponse.append("\"similarity\": ").append(String.format("%.2f", similarity));
+					jsonResponse.append("}");
+
+					resultCount++;
+				}
+			}
+
+			jsonResponse.append("],");
+			jsonResponse.append("\"query\": \"").append(escapeJson(query)).append("\",");
+			jsonResponse.append("\"count\": ").append(resultCount);
+			jsonResponse.append("}");
+
+			logger.info("Fuzzy search completed. Found " + resultCount + " matches");
+
+		} catch (SQLException | ClassNotFoundException ex) {
+			logger.error("Error in fuzzy search", ex);
+			return "{\"error\": \"" + escapeJson(ex.getMessage()) + "\"}";
+		} finally {
+			try {
+				if (allBlabs != null) {
+					allBlabs.close();
+				}
+			} catch (SQLException exceptSql) {
+				logger.error(exceptSql);
+			}
+			try {
+				if (connect != null) {
+					connect.close();
+				}
+			} catch (SQLException exceptSql) {
+				logger.error(exceptSql);
+			}
+		}
+
+		return jsonResponse.toString();
+	}
+
+	/**
+	 * Helper method to escape JSON strings
+	 */
+	private String escapeJson(String str) {
+		if (str == null) return "";
+		return str.replace("\\", "\\\\")
+				.replace("\"", "\\\"")
+				.replace("\n", "\\n")
+				.replace("\r", "\\r")
+				.replace("\t", "\\t");
 	}
 
 	final private static String ucfirst(String subject) {
