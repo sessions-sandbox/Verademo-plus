@@ -56,3 +56,25 @@ docker run --rm -it -p 127.0.0.1:8080:8080 --entrypoint bash -v "$(pwd):/app" ve
 ```
 
 You will then need to manually run the two commands within `/entrypoint.sh`. The first starts the DB in the background whereas the second compiles and runs the application. Typically a container shouldn't have multiple services but this was done for convenience.
+
+
+### Docker Compose development
+
+There is now a compose-based local workflow that runs the database and application in separate containers.
+
+Start the stack:
+
+    docker compose up --build
+
+Then, in a second terminal, start file watching:
+
+    docker compose watch
+
+What this does:
+
+- Changes under `app/src/main/java`, `app/src/main/resources`, and `app/src/main/webapp` are synced into the app container and the app container is restarted.
+- Changes to `app/pom.xml` or `maven-settings.xml` trigger an image rebuild.
+- The application is available at `http://127.0.0.1:8080`.
+- The database is available on `127.0.0.1:3306` for local tools or for running the app directly on the host.
+
+This is not true JVM hot reload. `docker compose watch` syncs files and restarts the app container so `mvn spring-boot:run` recompiles on startup.

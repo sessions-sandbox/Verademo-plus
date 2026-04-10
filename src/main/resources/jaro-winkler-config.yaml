@@ -1,6 +1,5 @@
-
 # Algorithm configuration for fuzzy search
-algorithm: levenshtein
+algorithm: jaro-winkler
 
 # Maximum distance threshold for fuzzy matching
 # Lower values = stricter matching, Higher values = more lenient matching

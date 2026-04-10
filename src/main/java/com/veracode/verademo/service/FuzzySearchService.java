@@ -53,7 +53,7 @@ public class FuzzySearchService {
      * Check single string match using the configured algorithm
      */
     private boolean matchesSingle(String query, String text) {
-        String algorithm = config.getAlgorithm();
+        String algorithm = config.getAlgorithm() == null ? "" : config.getAlgorithm().toString();
         
         switch (algorithm.toLowerCase()) {
             case "levenshtein":
@@ -81,7 +81,7 @@ public class FuzzySearchService {
             text = text.toLowerCase();
         }
         
-        String algorithm = config.getAlgorithm();
+        String algorithm = config.getAlgorithm() == null ? "" : config.getAlgorithm().toString();
         
         switch (algorithm.toLowerCase()) {
             case "levenshtein":

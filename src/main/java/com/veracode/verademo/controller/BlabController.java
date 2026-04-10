@@ -1,5 +1,7 @@
 package com.veracode.verademo.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,15 +21,19 @@ import com.veracode.verademo.commands.BlabberCommand;
 import com.veracode.verademo.model.Blab;
 import com.veracode.verademo.model.Blabber;
 import com.veracode.verademo.model.Comment;
+import com.veracode.verademo.config.FuzzySearchConfig;
 import com.veracode.verademo.utils.Constants;
 import com.veracode.verademo.utils.Utils;
 import com.veracode.verademo.service.FuzzySearchService;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -575,7 +584,7 @@ public class BlabController {
 	 * Show the search page
 	 */
 	@RequestMapping(value = "/search", method = RequestMethod.GET)
-	public String showSearch(HttpServletRequest httpRequest) {
+	public String showSearch(Model model, HttpServletRequest httpRequest) {
 		logger.info("Entering showSearch");
 
 		String username = (String) httpRequest.getSession().getAttribute("username");
@@ -586,7 +595,63 @@ public class BlabController {
 		}
 
 		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
+		model.addAttribute("currentAlgorithm", FuzzySearchConfig.getInstance().getAlgorithm());
 		return "search";
+	}
+
+	/**
+	 * Update fuzzy search configuration at runtime via YAML payload.
+	 */
+	@RequestMapping(value = "/search", method = RequestMethod.POST, consumes = { "application/x-yaml", "application/yaml", "text/yaml" }, produces = "application/json")
+	@ResponseBody
+	public String updateSearchConfig(
+			@RequestBody String ymlConfig,
+			HttpServletRequest httpRequest) {
+		logger.info("Entering updateSearchConfig");
+
+		String username = (String) httpRequest.getSession().getAttribute("username");
+		if (username == null) {
+			logger.info("User is not Logged In - returning error");
+			return "{\"error\": \"User not logged in\"}";
+		}
+
+		if (ymlConfig == null || ymlConfig.trim().isEmpty()) {
+			return "{\"error\": \"Empty YAML payload\"}";
+		}
+
+		try {
+
+			InputStream inputStream = new ByteArrayInputStream(ymlConfig.getBytes());
+			Yaml yaml = new Yaml(new Constructor(FuzzySearchConfig.class));
+			FuzzySearchConfig postedConfig = yaml.load(inputStream);
+
+			if (postedConfig == null) {
+				return "{\"error\": \"Invalid YAML payload\"}";
+			}
+
+			Set<String> allowedAlgorithms = new HashSet<String>(
+					Arrays.asList("levenshtein", "damerau-levenshtein", "jaro-winkler"));
+			String algorithm = postedConfig.getAlgorithm() == null ? "" : postedConfig.getAlgorithm().toString().toLowerCase();
+			if (!allowedAlgorithms.contains(algorithm)) {
+				return "{\"error\": \"Unsupported algorithm\"}";
+			}
+
+			FuzzySearchConfig config = FuzzySearchConfig.getInstance();
+			config.setAlgorithm(algorithm);
+			config.setMaxDistance(postedConfig.getMaxDistance());
+			config.setMinSimilarity(postedConfig.getMinSimilarity());
+			config.setCaseSensitive(postedConfig.isCaseSensitive());
+			config.setPartialMatch(postedConfig.isPartialMatch());
+			config.setMaxResults(postedConfig.getMaxResults());
+	
+
+			logger.info("Updated fuzzy search configuration from POST /search by user " + username);
+			return "{\"status\": \"ok\", \"algorithm\": \"" + escapeJson(String.valueOf(config.getAlgorithm())) + "\", \"maxDistance\": "
+					+ config.getMaxDistance() + ", \"minSimilarity\": " + config.getMinSimilarity() + "}";
+		} catch (Exception ex) {
+			logger.error("Invalid YAML in /search POST", ex);
+			return "{\"error\": \"Invalid YAML payload\"}";
+		}
 	}
 
 	/**

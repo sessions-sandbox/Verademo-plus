@@ -1,0 +1,51 @@
+services:
+  db:
+    image: mariadb:10.6.2
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blab
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -proot --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:ro
+      - db-data:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      RDS_HOSTNAME: db
+      RDS_PORT: 3306
+      RDS_DB_NAME: blab
+      RDS_USERNAME: blab
+      RDS_PASSWORD: z2^E6J4$;u;d
+    ports:
+      - "8080:8080"
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./src/main/java
+          target: /app/src/main/java
+        - action: sync+restart
+          path: ./src/main/resources
+          target: /app/src/main/resources
+        - action: sync+restart
+          path: ./src/main/webapp
+          target: /app/src/main/webapp
+        - action: rebuild
+          path: ./pom.xml
+        - action: rebuild
+          path: ./maven-settings.xml
+
+volumes:
+  db-data:

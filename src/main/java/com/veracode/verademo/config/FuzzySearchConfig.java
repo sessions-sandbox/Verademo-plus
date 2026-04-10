@@ -1,6 +1,7 @@
 package com.veracode.verademo.config;
 
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 public class FuzzySearchConfig {
     private static final Logger logger = LogManager.getLogger("VeraDemo:FuzzySearchConfig");
     
-    private String algorithm = "levenshtein";
+    private Object algorithm = "levenshtein";
     private int maxDistance = 3;
     private double minSimilarity = 0.6;
     private boolean caseSensitive = false;
@@ -47,7 +48,8 @@ public class FuzzySearchConfig {
     @SuppressWarnings("unchecked")
     private void loadConfiguration() {
         try {
-            Yaml yaml = new Yaml();
+            Constructor constructor = new Constructor();
+            Yaml yaml = new Yaml(constructor);
             InputStream inputStream = this.getClass()
                 .getClassLoader()
                 .getResourceAsStream("fuzzy-search-config.yaml");
@@ -62,7 +64,7 @@ public class FuzzySearchConfig {
             
             if (fuzzySearchConfig != null) {
                 if (fuzzySearchConfig.containsKey("algorithm")) {
-                    this.algorithm = (String) fuzzySearchConfig.get("algorithm");
+                    this.algorithm = fuzzySearchConfig.get("algorithm");
                 }
                 if (fuzzySearchConfig.containsKey("maxDistance")) {
                     this.maxDistance = (Integer) fuzzySearchConfig.get("maxDistance");
@@ -93,7 +95,7 @@ public class FuzzySearchConfig {
     }
     
     // Getters
-    public String getAlgorithm() {
+    public Object getAlgorithm() {
         return algorithm;
     }
     
@@ -118,7 +120,7 @@ public class FuzzySearchConfig {
     }
     
     // Setters for runtime configuration updates
-    public void setAlgorithm(String algorithm) {
+    public void setAlgorithm(Object algorithm) {
         this.algorithm = algorithm;
     }
     

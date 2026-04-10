@@ -29,6 +29,16 @@
 	.search-box {
 		margin-bottom: 20px;
 	}
+	.config-panel {
+		margin-bottom: 20px;
+		padding: 12px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		background-color: #f9f9f9;
+	}
+	#configStatus {
+		margin-top: 8px;
+	}
 	.similarity-score {
 		background-color: #5cb85c;
 		color: white;
@@ -75,9 +85,24 @@
 		<div class="page-header">
 			<h3>Fuzzy Search Blabs</h3>
 			<h4>Search through jokes and blabs with intelligent fuzzy matching</h4>
+			<p class="text-muted">
+				Current algorithm: <strong id="currentAlgorithmLabel">${currentAlgorithm}</strong>
+			</p>
 		</div>
 
 		<div class="search-container">
+			<div class="config-panel">
+				<div class="form-inline" role="form">
+					<div class="form-group">
+						<input id="yamlConfigFile" type="file" accept=".yaml,.yml,text/yaml,application/x-yaml" class="form-control" />
+					</div>
+					<div class="form-group">
+						<button id="uploadYamlConfig" type="button" class="btn btn-default">Upload YAML Config</button>
+					</div>
+				</div>
+				<div id="configStatus"></div>
+			</div>
+
 			<div class="search-box">
 				<form id="searchForm" class="form-inline" role="form">
 					<div class="form-group" style="width: 70%;">
@@ -110,6 +135,52 @@
 	<!-- Fuzzy search JavaScript -->
 	<script type="text/javascript">
 		$(document).ready(function() {
+			$('#uploadYamlConfig').click(function() {
+				var fileInput = document.getElementById('yamlConfigFile');
+				if (!fileInput.files || fileInput.files.length === 0) {
+					showConfigStatus('Please select a YAML file first.', 'warning');
+					return;
+				}
+
+				var file = fileInput.files[0];
+				var fileName = file.name.toLowerCase();
+				if (!fileName.endsWith('.yaml') && !fileName.endsWith('.yml')) {
+					showConfigStatus('Only .yaml or .yml files are supported.', 'danger');
+					return;
+				}
+
+				var reader = new FileReader();
+				reader.onload = function(evt) {
+					showConfigStatus('Uploading configuration...', 'info');
+					$.ajax({
+						url: 'search',
+						method: 'POST',
+						data: evt.target.result,
+						contentType: 'application/x-yaml; charset=UTF-8',
+						processData: false,
+						dataType: 'json',
+						success: function(data) {
+							if (data.error) {
+								showConfigStatus('Config update failed: ' + data.error, 'danger');
+								return;
+							}
+
+							if (data.algorithm) {
+								$('#currentAlgorithmLabel').text(data.algorithm);
+							}
+							showConfigStatus('Configuration updated successfully.', 'success');
+						},
+						error: function(xhr, status, error) {
+							showConfigStatus('Config update error: ' + error, 'danger');
+						}
+					});
+				};
+				reader.onerror = function() {
+					showConfigStatus('Failed to read the selected file.', 'danger');
+				};
+				reader.readAsText(file);
+			});
+
 			$('#searchForm').submit(function(e) {
 				e.preventDefault();
 				var query = $('#searchQuery').val().trim();
@@ -139,6 +210,10 @@
 				});
 			});
 		});
+
+		function showConfigStatus(message, type) {
+			$('#configStatus').html('<div class="alert alert-' + type + '">' + escapeHtml(message) + '</div>');
+		}
 
 		function displayResults(data) {
 			var resultsHtml = '';
