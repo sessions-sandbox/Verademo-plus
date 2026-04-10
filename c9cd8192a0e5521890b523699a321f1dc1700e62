@@ -1,0 +1,58 @@
+src/main/java/com/veracode/verademo/service/FuzzySearchService.java
+  b2414934b60e1fd7 56,84
+src/main/webapp/WEB-INF/views/search.jsp
+  602f117c544b3d2d 32-41,88-90,94-105,138-183,214-216
+compose.yaml
+  2cc7c82dd2bfea96 22,37,40,43,46
+src/main/java/com/veracode/verademo/controller/BlabController.java
+  b2414934b60e1fd7 634,649
+  602f117c544b3d2d 13-14,16,24,31,36,587,598,602-623,626-633,635-645,647-648,650-654
+src/main/java/com/veracode/verademo/config/FuzzySearchConfig.java
+  b2414934b60e1fd7 18,67,98,123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "c9cd8192a0e5521890b523699a321f1dc1700e62",
+  "prompts": {
+    "2cc7c82dd2bfea96": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "59469267-1213-480a-ae99-44002b6312b4",
+        "model": "copilot/auto"
+      },
+      "human_author": "Stuart Sessions",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 5,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    },
+    "602f117c544b3d2d": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "0edd7ea2-314a-4d5e-a15e-a19099ca6d38",
+        "model": "copilot/auto"
+      },
+      "human_author": "Stuart Sessions",
+      "messages": [],
+      "total_additions": 222,
+      "total_deletions": 14,
+      "accepted_lines": 133,
+      "overriden_lines": 2
+    },
+    "b2414934b60e1fd7": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "ce29891f-71bb-481b-98d0-38833eaea946",
+        "model": "copilot/auto"
+      },
+      "human_author": "Stuart Sessions",
+      "messages": [],
+      "total_additions": 8,
+      "total_deletions": 8,
+      "accepted_lines": 8,
+      "overriden_lines": 0
+    }
+  }
+}
