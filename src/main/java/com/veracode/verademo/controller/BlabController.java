@@ -625,19 +625,10 @@ public class BlabController {
 			Yaml yaml = new Yaml(new Constructor(FuzzySearchConfig.class));
 			FuzzySearchConfig postedConfig = yaml.load(inputStream);
 
-			if (postedConfig == null) {
-				return "{\"error\": \"Invalid YAML payload\"}";
-			}
-
-			Set<String> allowedAlgorithms = new HashSet<String>(
-					Arrays.asList("levenshtein", "damerau-levenshtein", "jaro-winkler"));
-			String algorithm = postedConfig.getAlgorithm() == null ? "" : postedConfig.getAlgorithm().toString().toLowerCase();
-			if (!allowedAlgorithms.contains(algorithm)) {
-				return "{\"error\": \"Unsupported algorithm\"}";
-			}
 
 			FuzzySearchConfig config = FuzzySearchConfig.getInstance();
-			config.setAlgorithm(algorithm);
+			
+			config.setAlgorithm(postedConfig.getAlgorithm());
 			config.setMaxDistance(postedConfig.getMaxDistance());
 			config.setMinSimilarity(postedConfig.getMinSimilarity());
 			config.setCaseSensitive(postedConfig.isCaseSensitive());
