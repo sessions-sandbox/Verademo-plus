@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "b5d8c6de42aaafb53f4a3f8832c919cdeabdbd1e",
+  "prompts": {
+    "b2414934b60e1fd7": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "ce29891f-71bb-481b-98d0-38833eaea946",
+        "model": "copilot/auto"
+      },
+      "human_author": "Stuart Sessions",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 9,
+      "overriden_lines": 1
+    }
+  }
+}
