@@ -64,7 +64,7 @@ There is now a compose-based local workflow that runs the database and applicati
 
 Start the stack:
 
-    docker compose up --build
+    docker compose up -d --build
 
 Then, in a second terminal, start file watching:
 
