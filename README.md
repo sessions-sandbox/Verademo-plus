@@ -78,3 +78,8 @@ What this does:
 - The database is available on `127.0.0.1:3306` for local tools or for running the app directly on the host.
 
 This is not true JVM hot reload. `docker compose watch` syncs files and restarts the app container so `mvn spring-boot:run` recompiles on startup.
+
+
+## FIXING
+
+Fix for SCA is enabled on this repository, so when creating a PR, you can interact with the /veracode-fix bot to fix items.
