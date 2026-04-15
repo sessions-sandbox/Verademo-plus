@@ -1,7 +1,7 @@
 package com.veracode.verademo.config;
 
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -48,8 +48,8 @@ public class FuzzySearchConfig {
     @SuppressWarnings("unchecked")
     private void loadConfiguration() {
         try {
-            Constructor constructor = new Constructor();
-            Yaml yaml = new Yaml(constructor);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            Yaml yaml = new Yaml(loaderOptions);
             InputStream inputStream = this.getClass()
                 .getClassLoader()
                 .getResourceAsStream("fuzzy-search-config.yaml");
