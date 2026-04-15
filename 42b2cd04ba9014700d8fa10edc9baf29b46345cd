@@ -1,0 +1,46 @@
+src/main/webapp/WEB-INF/views/feed.jsp
+  c9fdc571fda95485 42
+src/main/webapp/WEB-INF/views/profile.jsp
+  c9fdc571fda95485 41
+Dockerfile
+  e17bf32eb3b82f64 10
+src/main/webapp/WEB-INF/views/blab.jsp
+  c9fdc571fda95485 42
+src/main/webapp/WEB-INF/views/tools.jsp
+  c9fdc571fda95485 45
+src/main/webapp/WEB-INF/views/blabbers.jsp
+  c9fdc571fda95485 43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "42b2cd04ba9014700d8fa10edc9baf29b46345cd",
+  "prompts": {
+    "c9fdc571fda95485": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "90dadc31-eff7-45d7-aa33-dc062c32d95b",
+        "model": "copilot/auto"
+      },
+      "human_author": "Stuart Sessions",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 0,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    },
+    "e17bf32eb3b82f64": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "3e73a42a-cd09-4ec5-9b45-d839810d9464",
+        "model": "copilot/auto"
+      },
+      "human_author": "Stuart Sessions",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
