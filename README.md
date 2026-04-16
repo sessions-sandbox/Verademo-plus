@@ -80,3 +80,5 @@ What this does:
 This is not true JVM hot reload. `docker compose watch` syncs files and restarts the app container so `mvn spring-boot:run` recompiles on startup.
 
 Exploit:
+
+Upload the vulnerable yaml script!
